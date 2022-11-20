@@ -1,0 +1,21 @@
+# docker-compose 可以从外部读取 dockerfile 文件, 也可以将docker相关配置写到compose中
+# 命令解释 https://blog.csdn.net/huangjinjin520/article/details/124054043
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.5
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./acme.json:/acme.json
+      - ./log:/log
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: traefik
+    env_file: .env
+    labels:
+      - "traefik.http.routers.api.rule=Host(`traefik.shanyue.local`)"
+      - "traefik.http.routers.api.service=api@internal"
